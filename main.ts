@@ -1,5 +1,8 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, Router, Request, Response } from "express";
 import cors from "cors";
+
+import { query } from './db';
+const router = Router();
 
 const server = express();
 server.use(cors());
