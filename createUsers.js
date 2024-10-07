@@ -5,7 +5,7 @@ const dbConfig = {
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'TP-TodoList'
+    database: 'tp-todolist'
 };
 
 async function createUser(userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled) {
@@ -13,7 +13,7 @@ async function createUser(userName, userSurname, userMail, hashedPass, isAdmin, 
     
     const hashedPassword = await bcrypt.hash(hashedPass, 10); // On stock le mdp hashé dans une variable hashedPassword
     
-    const sql = 'INSERT INTO utilisateur (userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO users (userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled) VALUES (?, ?, ?, ?, ?, ?)';
     await connection.execute(sql, [userName, userSurname, userMail, hashedPassword, isAdmin, isAccEnabled]); // On envoie la requete insert into
     
     console.log(`Utilisateur créé : ${userName}`);

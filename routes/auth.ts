@@ -2,15 +2,21 @@ import { Router, Request, Response } from 'express';
 import { query } from '../db';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+
+
+dotenv.config();
 
 const router = Router();
+router.use(cookieParser());
 
 router.post('/login', async (req: Request, res: Response) => {
   console.log('Login endpoint hit');
   const { email, password } = req.body;
-  
 
   try {
+
     const sql = 'SELECT * FROM utilisateur WHERE userMail = ?';
     const users = await query(sql, [email]);
 
@@ -28,16 +34,25 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
+      console.error('JWT_SECRET non défini');
       return res.status(500).json({ message: 'Erreur de configuration du serveur' });
     }
 
-    // Génére un token
+    
     const token = jwt.sign({ id: user.id, email: user.userMail, isAdmin: user.isAdmin }, jwtSecret, {
-      expiresIn: '1h', // Token expire dans 1 heure
+      expiresIn: '1h',
     });
 
-    // Retourne le token
-    res.json({ token });
+  
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'strict', 
+      maxAge: 60 * 60 * 1000, // 1 heure
+    });
+
+
+    res.status(200).json({ message: 'Connexion réussie' });
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
