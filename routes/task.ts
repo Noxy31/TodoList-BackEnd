@@ -2,66 +2,64 @@ import { Router, Request, Response } from "express";
 
 const router = Router();
 
-interface Todo {
-  id: number;
-  label: string;
+interface Task {
+  idTask: number;
+  labelTask: string;
   done: boolean;
   dueDate?: Date;
 }
 
-const monTableau: Todo[] = [
-  { id: 1, label: "apprendre Vue Js", done: false, dueDate: new Date("2024-12-31") },
-  { id: 2, label: "apprendre à faire des boucles", done: false },
-  { id: 3, label: "apprendre à griller des saucisses", done: true, dueDate: new Date("2024-12-31") },
+const monTableau: Task[] = [
+  
 ];
 
-// Toutes les routes liées aux tâches "todo"
-router.get("/todos", (req: Request, res: Response) => res.send(monTableau));
 
-router.get("/todos/:id", (req: Request, res: Response) => {
+router.get("/api/tasks", (req: Request, res: Response) => res.send(monTableau));
+
+router.get("/api/tasks/:id", (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
-  const todo = monTableau.find((t) => t.id === id);
-  if (todo) {
-    res.send(todo);
+  const task = monTableau.find((t) => t.idTask === id);
+  if (task) {
+    res.send(task);
   } else {
-    res.status(404).send("Todo not found");
+    res.status(404).send("Task not found");
   }
 });
 
-router.put("/todos/:id", (req: Request, res: Response) => {
+router.put("/api/tasks/:id", (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
-  const { label, done, dueDate } = req.body;
-  const todoIndex = monTableau.findIndex((t) => t.id === id);
-  if (todoIndex !== -1) {
-    monTableau[todoIndex] = {
-      ...monTableau[todoIndex],
-      label: label || monTableau[todoIndex].label,
-      done: done !== undefined ? done : monTableau[todoIndex].done,
-      dueDate: dueDate ? new Date(dueDate) : monTableau[todoIndex].dueDate,
+  const { labelTask, done, dueDate } = req.body;
+  const taskIndex = monTableau.findIndex((t) => t.idTask === id);
+  if (taskIndex !== -1) {
+    monTableau[taskIndex] = {
+      ...monTableau[taskIndex],
+      labelTask: labelTask || monTableau[taskIndex].labelTask,
+      done: done !== undefined ? done : monTableau[taskIndex].done,
+      dueDate: dueDate ? new Date(dueDate) : monTableau[taskIndex].dueDate,
     };
-    res.send(monTableau[todoIndex]);
+    res.send(monTableau[taskIndex]);
   } else {
-    res.status(404).send("Todo not found");
+    res.status(404).send("Task not found");
   }
 });
 
-router.delete("/todos/:id", (req: Request, res: Response) => {
+router.delete("/api/tasks/:id", (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
-  const todoIndex = monTableau.findIndex((t) => t.id === id);
-  if (todoIndex !== -1) {
-    const deletedTodo = monTableau.splice(todoIndex, 1);
-    res.send(deletedTodo);
+  const taskIndex = monTableau.findIndex((t) => t.idTask === id);
+  if (taskIndex !== -1) {
+    const deletedTask = monTableau.splice(taskIndex, 1);
+    res.send(deletedTask);
   } else {
-    res.status(404).send("Todo not found");
+    res.status(404).send("Task not found");
   }
 });
 
-router.post("/todos", (req: Request, res: Response) => {
-  const { label, done, dueDate } = req.body;
-  const newId = monTableau.length > 0 ? monTableau[monTableau.length - 1].id + 1 : 1;
-  const newTodo: Todo = { id: newId, label, done, dueDate: dueDate ? new Date(dueDate) : undefined };
-  monTableau.push(newTodo);
-  res.status(201).send(newTodo);
+router.post("/api/tasks", (req: Request, res: Response) => {
+  const { labelTask, done, dueDate } = req.body;
+  const newId = monTableau.length > 0 ? monTableau[monTableau.length - 1].idTask + 1 : 1;
+  const newTask: Task = { idTask: newId, labelTask, done, dueDate: dueDate ? new Date(dueDate) : undefined };
+  monTableau.push(newTask);
+  res.status(201).send(newTask);
 });
 
 export default router;

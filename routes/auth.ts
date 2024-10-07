@@ -14,10 +14,10 @@ router.use(cookieParser());
 router.post('/login', async (req: Request, res: Response) => {
   console.log('Login endpoint hit');
   const { email, password } = req.body;
-
+console.log(email);
   try {
 
-    const sql = 'SELECT * FROM utilisateur WHERE userMail = ?';
+    const sql = 'SELECT * FROM users WHERE userMail = ?';
     const users = await query(sql, [email]);
 
     if (users.length === 0) {
@@ -45,7 +45,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
   
     res.cookie('token', token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production', 
       sameSite: 'strict', 
       maxAge: 60 * 60 * 1000, // 1 heure
