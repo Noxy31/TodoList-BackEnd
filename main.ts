@@ -5,6 +5,7 @@ import authMiddleware from "./middlewares/authenticate";
 import taskRouter from "./routes/task";
 import listRouter from "./routes/list";
 import usersRouter from "./routes/users";
+import categoryRouter from './routes/category';
 
 const server = express();
 server.use(cookieParser());
@@ -14,6 +15,7 @@ server.use(authMiddleware);
 server.use('/tasks',taskRouter);
 server.use('/list', listRouter);
 server.use('/users', usersRouter);
+server.use('/categories', categoryRouter);
 
 
 

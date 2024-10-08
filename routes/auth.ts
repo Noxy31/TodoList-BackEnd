@@ -41,9 +41,6 @@ console.log(email);
     const token = jwt.sign({ id: user.idUser, email: user.userMail, isAdmin: user.isAdmin }, jwtSecret, {
       expiresIn: '1h',
     });
-
-    
-    console.log("Token généré : ", token);
   
     res.cookie('token', token, {
       httpOnly: false,
@@ -51,7 +48,6 @@ console.log(email);
       sameSite: 'strict', 
       maxAge: 60 * 60 * 1000, // 1 heure
     });
-
 
     res.status(200).json({ message: 'Connexion réussie' });
   } catch (error) {
