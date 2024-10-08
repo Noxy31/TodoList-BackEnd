@@ -11,13 +11,12 @@ const monTableau: Task[] = [
 
 taskRouter.get("/", (req: Request, res: Response) => res.send(monTableau));
 
-taskRouter.get("/:id", (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  const task = monTableau.find((t) => t.idTask === id);
-  if (task) {
-    res.send(task);
-  } else {
-    res.status(404).send("Task not found");
+taskRouter.get("/", async (req: Request, res: Response) => {
+  try {
+    const tasks = await query('SELECT * FROM task');
+    res.send(tasks);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la récupération des tâches.");
   }
 });
 
@@ -38,23 +37,33 @@ taskRouter.put("/:id", (req: Request, res: Response) => {
   }
 });
 
-taskRouter.delete("/:id", (req: Request, res: Response) => {
+taskRouter.delete("/:id", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
-  const taskIndex = monTableau.findIndex((t) => t.idTask === id);
-  if (taskIndex !== -1) {
-    const deletedTask = monTableau.splice(taskIndex, 1);
-    res.send(deletedTask);
-  } else {
-    res.status(404).send("Task not found");
+
+  try {
+    await query('DELETE FROM task WHERE idTask = ?', [id]);
+    res.send({ message: "Tâche supprimée avec succès" });
+  } catch (error) {
+    res.status(500).send("Erreur lors de la suppression de la tâche.");
   }
 });
 
-taskRouter.post("/", (req: Request, res: Response) => {
-  const { labelTask, creationTask, updateTask, idList, idUser, dueDate } = req.body;
-  const newId = monTableau.length > 0 ? monTableau[monTableau.length - 1].idTask + 1 : 1;
-  const newTask: Task = { idTask: newId,creationTask, updateTask, idList, idUser, labelTask, completionStateTask: false, completionTimeTask: dueDate ? new Date(dueDate) : undefined };
-  monTableau.push(newTask);
-  res.status(201).send(newTask);
+taskRouter.post("/", async (req: Request, res: Response) => {
+  const { labelTask, creationTask, idList, idUser, dueTask } = req.body;
+  
+  try {
+    const result = await query(
+      'INSERT INTO task (labelTask, creationTask, idList, idUser, dueTask, completionStateTask) VALUES (?, ?, ?, ?, ?, ?)',
+      [labelTask, new Date(), idList, idUser, dueTask || null, false]
+    );
+    
+    const newTaskId = result.insertId;
+    const newTask = await query('SELECT * FROM task WHERE idTask = ?', [newTaskId]);
+    
+    res.status(201).send(newTask[0]);
+  } catch (error) {
+    res.status(500).send("Erreur lors de l'ajout de la tâche.");
+  }
 });
 
 export default taskRouter;

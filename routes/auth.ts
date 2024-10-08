@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-
 dotenv.config();
 
 const router = Router();
@@ -39,10 +38,12 @@ console.log(email);
     }
 
     
-    const token = jwt.sign({ id: user.id, email: user.userMail, isAdmin: user.isAdmin }, jwtSecret, {
+    const token = jwt.sign({ id: user.idUser, email: user.userMail, isAdmin: user.isAdmin }, jwtSecret, {
       expiresIn: '1h',
     });
 
+    
+    console.log("Token généré : ", token);
   
     res.cookie('token', token, {
       httpOnly: false,
