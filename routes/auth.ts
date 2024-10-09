@@ -13,9 +13,9 @@ router.use(cookieParser());
 router.post('/login', async (req: Request, res: Response) => {
   console.log('Login endpoint hit');
   const { email, password } = req.body;
-console.log(email);
+  console.log(email);
+  
   try {
-
     const sql = 'SELECT * FROM users WHERE userMail = ?';
     const users = await query(sql, [email]);
 
@@ -37,19 +37,27 @@ console.log(email);
       return res.status(500).json({ message: 'Erreur de configuration du serveur' });
     }
 
-    
-    const token = jwt.sign({ id: user.idUser, email: user.userMail, isAdmin: user.isAdmin }, jwtSecret, {
-      expiresIn: '1h',
-    });
-  
+    const token = jwt.sign(
+      { id: user.idUser, email: user.userMail, isAdmin: user.isAdmin }, 
+      jwtSecret, 
+      { expiresIn: '1h' }
+    );
+
     res.cookie('token', token, {
-      httpOnly: false,
+      httpOnly: false, 
       secure: process.env.NODE_ENV === 'production', 
       sameSite: 'strict', 
-      maxAge: 60 * 60 * 1000, // 1 heure
+      maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({ message: 'Connexion réussie' });
+    res.status(200).json({
+      message: 'Connexion réussie',
+      user: {
+        id: user.idUser,
+        email: user.userMail,
+        isAdmin: user.isAdmin
+      }
+    });
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
