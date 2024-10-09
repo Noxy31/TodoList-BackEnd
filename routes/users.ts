@@ -20,7 +20,7 @@ router.get('/getUserId', authMiddleware, (req: CustomRequest, res: Response) => 
   }
 });
 
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const sql = 'SELECT idUser, CONCAT(userName, " ", userSurname) AS fullName FROM users';
     const users = await query(sql);
