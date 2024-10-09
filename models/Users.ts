@@ -1,7 +1,7 @@
 export interface Users {
     idUser: number;
     userName: string;
-    userSurname: Date;
+    userSurname: string;
     userMail: string;
     hashedPass: string;
     isAdmin: boolean;

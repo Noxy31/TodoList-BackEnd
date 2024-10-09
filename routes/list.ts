@@ -4,7 +4,6 @@ import authMiddleware from '../middlewares/authenticate';
 
 const router = Router();
 
-// route pour ajouter une liste via le formulaire dans mon composant ListsComp
 router.post('/create', authMiddleware, async (req: Request, res: Response) => {
   const { labelList, isPersonnal, idCategory } = req.body;
 
@@ -25,7 +24,6 @@ router.post('/create', authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
-// Route pour afficher les listes dans ListsComp
 router.get('/:userId', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.params.userId;
   
