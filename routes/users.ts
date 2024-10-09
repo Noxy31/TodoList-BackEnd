@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authMiddleware from '../middlewares/authenticate';
+import isAdminMiddleware from '../middlewares/isAdmin';
+import bcrypt from 'bcrypt';
 import { CustomRequest } from '../middlewares/authenticate';
 import { query } from '../db';
 
@@ -31,7 +33,24 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/assign-user', async (req: Request, res: Response) => {
+router.get('/info', authMiddleware, async (req: CustomRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Utilisateur non authentifié' });
+  }
+
+  const userId = req.user.id;
+  const sql = 'SELECT idUser, userName, userSurname, userMail, isAdmin FROM users WHERE idUser = ?';
+  const [user] = await query(sql, [userId]);
+
+  if (user) {
+    user.isAdmin = !!user.isAdmin;
+    res.status(200).json(user);
+  } else {
+    res.status(404).json({ message: 'Utilisateur non trouvé' });
+  }
+});
+
+router.post('/assign-user', isAdminMiddleware, async (req: Request, res: Response) => {
   const { idUser, idCategory } = req.body;
   
   try {
@@ -41,6 +60,22 @@ router.post('/assign-user', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erreur lors de l\'assignation de l\'utilisateur :', error);
     res.status(500).json({ message: 'Erreur' });
+  }
+});
+
+router.post('/create-user', isAdminMiddleware, async (req: Request, res: Response) => {
+  const { userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(hashedPass, 10);
+
+    const sql = 'INSERT INTO users (userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled) VALUES (?, ?, ?, ?, ?, ?)';
+    await query(sql, [userName, userSurname, userMail, hashedPassword, isAdmin, isAccEnabled]);
+
+    res.status(201).json({ message: 'Utilisateur créé avec succès.' });
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'utilisateur :', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la création de l\'utilisateur' });
   }
 });
 

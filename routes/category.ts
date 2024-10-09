@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import isAdminMiddleware from '../middlewares/isAdmin';
 import { query } from '../db';
 
 const router = Router();
@@ -14,7 +15,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', isAdminMiddleware, async (req: Request, res: Response) => {
   const { name } = req.body;
 
   if (!name) {
