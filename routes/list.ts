@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { query } from '../db';
 import authMiddleware from '../middlewares/authenticate';
+import enAccMiddleware from '../middlewares/isAccEnabled';
 import isAdminMiddleware from '../middlewares/isAdmin';
 
-const router = Router();
+const listRouter = Router();
 
-router.post('/create', authMiddleware, async (req: Request, res: Response) => {
+listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { labelList, isPersonnal, idCategory } = req.body;
 
 
@@ -25,7 +26,7 @@ router.post('/create', authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
-router.get('/:userId', authMiddleware, async (req: Request, res: Response) => {
+listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
     const userId = req.params.userId;
   
     try {
@@ -42,4 +43,4 @@ router.get('/:userId', authMiddleware, async (req: Request, res: Response) => {
       res.status(500).json({ message: 'Erreur serveur lors de la récupération des listes' });
     }
   });
-export default router;
+export default listRouter;

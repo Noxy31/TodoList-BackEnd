@@ -7,7 +7,7 @@ const isAdminMiddleware = (req: CustomRequest, res: Response, next: NextFunction
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    return res.status(403).json({ message: "Accès refusé. Vous devez être administrateur pour accéder à cette page." });
+    return res.status(403).json({ message: "" });
   }
 };
 

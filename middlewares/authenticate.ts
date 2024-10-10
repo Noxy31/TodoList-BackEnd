@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 export interface CustomRequest extends Request {
-  user?: { id: number, email: string, isAdmin: boolean };
+  user?: { id: number, email: string, isAdmin: boolean, isAccEnabled: boolean };
 }
 
 const authMiddleware = (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -17,7 +17,8 @@ const authMiddleware = (req: CustomRequest, res: Response, next: NextFunction) =
     req.user = {
       id: decoded.id,
       email: decoded.email,
-      isAdmin: decoded.isAdmin
+      isAdmin: decoded.isAdmin,
+      isAccEnabled: decoded.isAccEnabled
     };
     next();
   } catch (error) {
