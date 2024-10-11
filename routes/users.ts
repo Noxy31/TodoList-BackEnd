@@ -64,6 +64,23 @@ usersRouter.post('/assign-user', isAdminMiddleware, authMiddleware, enAccMiddlew
   }
 });
 
+usersRouter.delete('/unassign-user', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  const { idUser, idCategory } = req.body;
+
+  if (!idUser || !idCategory) {
+    return res.status(400).json({ message: 'Les informations de l’utilisateur et de la catégorie sont requises' });
+  }
+
+  try {
+    const sql = 'DELETE FROM isaffected WHERE idUser = ? AND idCategory = ?';
+    await query(sql, [idUser, idCategory]);
+    res.status(200).json({ message: 'Utilisateur désassigné de la catégorie avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la désassignation de l’utilisateur :', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la désassignation de l’utilisateur' });
+  }
+});
+
 usersRouter.post('/create-user', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled } = req.body;
 

@@ -36,9 +36,11 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
 
   try {
     const completionTime = done ? 'NOW()' : null;
+    const idTaskCompleter = done ? idUser : null;
+
     const updateTaskResult = await query(
-      'UPDATE task SET completionStateTask = ?, completionTimeTask = ' + completionTime + ' WHERE idTask = ?',
-      [done, idTask]
+      'UPDATE task SET completionStateTask = ?, completionTimeTask = ' + completionTime + ', idTaskCompleter = ? WHERE idTask = ?',
+      [done, idTaskCompleter, idTask]
     );
 
     if (updateTaskResult.affectedRows === 0) {
