@@ -41,6 +41,26 @@ listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request,
   }
 });
 
+listRouter.get('/user-categories-lists', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+
+  try {
+    const sql = `
+      SELECT l.idList, l.labelList, l.idCategory 
+      FROM list l
+      INNER JOIN isaffected ia ON l.idCategory = ia.idCategory
+      WHERE ia.idUser = ?
+    `;
+    const lists = await query(sql, [userId]);
+
+    res.status(200).json(lists);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des listes pour les catégories de l\'utilisateur :', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la récupération des listes pour les catégories de l\'utilisateur' });
+  }
+});
+
+
 listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const userId = req.params.userId;
 
