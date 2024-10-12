@@ -9,7 +9,7 @@ taskRouter.get("/", async (req: Request, res: Response) => {
     const tasks = await query('SELECT * FROM task');
     res.send(tasks);
   } catch (error) {
-    res.status(500).send("Erreur lors de la récupération des tâches.");
+    res.status(500).send(error);
   }
 });
 
@@ -20,7 +20,7 @@ taskRouter.get("/list/:idList", async (req: Request, res: Response) => {
     const tasks = await query('SELECT * FROM task WHERE idList = ?', [idList]);
     res.send(tasks);
   } catch (error) {
-    res.status(500).send("Erreur lors de la récupération des tâches pour cette liste.");
+    res.status(500).send(error);
   }
 });
 
@@ -31,7 +31,7 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
   const idUser = (req as any).user?.id;
 
   if (!idUser) {
-    return res.status(401).send("Utilisateur non authentifié");
+    return res.status(401).send("User not authentified");
   }
 
   try {
@@ -44,7 +44,7 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
     );
 
     if (updateTaskResult.affectedRows === 0) {
-      return res.status(404).send("Tâche non trouvée");
+      return res.status(404).send("task not found");
     }
 
     const insertUpdateTaskResult = await query(
@@ -53,13 +53,70 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
     );
 
     if (insertUpdateTaskResult.affectedRows === 0) {
-      console.error('Erreur lors de l\'insertion dans updateTask');
+      console.error('error insertion');
     }
 
-    res.send("Tâche mise à jour avec succès");
+    res.send("updating successful");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Erreur lors de la mise à jour de la tâche");
+    res.status(500).send(error);
+  }
+});
+
+taskRouter.put("/edit/:idTask", async (req: Request, res: Response) => {
+  const idTask = parseInt(req.params.idTask, 10);
+  const { labelTask, dueTask } = req.body; // Récupérer uniquement les champs nécessaires
+  const idUser = (req as any).user?.id;
+
+  if (!idUser) {
+    return res.status(401).send("User not authenticated");
+  }
+
+  // Construire la requête de mise à jour en fonction des champs définis
+  const updates: string[] = [];
+  const params: any[] = [];
+
+  // Ajout des champs à mettre à jour
+  if (labelTask !== undefined) {
+    updates.push("labelTask = ?");
+    params.push(labelTask);
+  }
+
+  if (dueTask !== undefined) {
+    updates.push("dueTask = ?");
+    params.push(dueTask);
+  }
+
+  // Si aucun champ n'est défini, retourner une erreur
+  if (updates.length === 0) {
+    return res.status(400).send("No fields to update");
+  }
+
+  // Ajout de l'ID de la tâche à la fin des paramètres
+  params.push(idTask);
+
+  try {
+    // Construire la requête dynamique
+    const updateQuery = `UPDATE task SET ${updates.join(", ")} WHERE idTask = ?`;
+    const updateTaskResult = await query(updateQuery, params);
+
+    if (updateTaskResult.affectedRows === 0) {
+      return res.status(404).send("Task not found");
+    }
+
+    const insertUpdateTaskResult = await query(
+      'INSERT INTO updateTask (idUser, idTask, updateTask) VALUES (?, ?, NOW())',
+      [idUser, idTask]
+    );
+
+    if (insertUpdateTaskResult.affectedRows === 0) {
+      console.error('Error inserting into updateTask');
+    }
+
+    res.send("Task updated successfully");
+  } catch (error) {
+    console.error('Error during task update:', error);
+    res.status(500).send('Internal Server Error: ');
   }
 });
 
@@ -70,7 +127,7 @@ taskRouter.delete("/:id", async (req: Request, res: Response) => {
     await query('DELETE FROM task WHERE idTask = ?', [id]);
     res.send({ message: "Tâche supprimée avec succès" });
   } catch (error) {
-    res.status(500).send("Erreur lors de la suppression de la tâche.");
+    res.status(500).send(error);
   }
 });
 
@@ -88,7 +145,7 @@ taskRouter.post("/", async (req: Request, res: Response) => {
 
     res.status(201).send(newTask[0]);
   } catch (error) {
-    res.status(500).send("Erreur lors de l'ajout de la tâche.");
+    res.status(500).send(error);
   }
 });
 
@@ -113,7 +170,7 @@ taskRouter.get("/details/:idList", async (req: Request, res: Response) => {
     
     res.send(tasks);
   } catch (error) {
-    res.status(500).send("Erreur lors de la récupération des tâches avec détails.");
+    res.status(500).send(error);
   }
 });
 

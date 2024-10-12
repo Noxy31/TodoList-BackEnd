@@ -67,7 +67,7 @@ authRouter.post('/login', isAccEnabled, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
-    res.status(500).json({ message: 'Erreur interne du serveur' });
+    res.status(500).send(error);
   }
 });
 

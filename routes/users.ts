@@ -19,7 +19,7 @@ usersRouter.get('/getUserId', authMiddleware, (req: CustomRequest, res: Response
   if (req.user) {
     res.json({ id: req.user.id });
   } else {
-    res.status(401).json({ message: 'Utilisateur non authentifié' });
+    res.status(401).json({ message: 'User not authentified' });
   }
 });
 
@@ -29,8 +29,7 @@ usersRouter.get('/', async (req: Request, res: Response) => {
     const users = await query(sql);
     res.status(200).json(users);
   } catch (error) {
-    console.error('Erreur lors de la récupération des utilisateurs :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des utilisateurs' });
+    res.status(500).send(error);
   }
 });
 
@@ -59,8 +58,7 @@ usersRouter.post('/assign-user', isAdminMiddleware, authMiddleware, enAccMiddlew
     await query(sql, [idUser, idCategory]);
     res.status(200).json({ message: 'Utilisateur assigné avec succès à la catégorie.' });
   } catch (error) {
-    console.error('Erreur lors de l\'assignation de l\'utilisateur :', error);
-    res.status(500).json({ message: 'Erreur' });
+    res.status(500).send(error);
   }
 });
 
@@ -76,8 +74,7 @@ usersRouter.delete('/unassign-user', isAdminMiddleware, authMiddleware, enAccMid
     await query(sql, [idUser, idCategory]);
     res.status(200).json({ message: 'Utilisateur désassigné de la catégorie avec succès' });
   } catch (error) {
-    console.error('Erreur lors de la désassignation de l’utilisateur :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la désassignation de l’utilisateur' });
+    res.status(500).send(error);
   }
 });
 
@@ -90,10 +87,9 @@ usersRouter.post('/create-user', isAdminMiddleware, authMiddleware, enAccMiddlew
     const sql = 'INSERT INTO users (userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled) VALUES (?, ?, ?, ?, ?, ?)';
     await query(sql, [userName, userSurname, userMail, hashedPassword, isAdmin, isAccEnabled]);
 
-    res.status(201).json({ message: 'Utilisateur créé avec succès.' });
+    res.status(201).json({ message: 'user successfully created' });
   } catch (error) {
-    console.error('Erreur lors de la création de l\'utilisateur :', error);
-    res.status(500).json({ message: 'Erreur' });
+    res.status(500).send(error);
   }
 });
 
@@ -105,10 +101,9 @@ usersRouter.put('/:id/enable-disable', isAdminMiddleware, authMiddleware, enAccM
     const sql = 'UPDATE users SET isAccEnabled = ? WHERE idUser = ?';
     await query(sql, [isAccEnabled, id]);
 
-    res.status(200).json({ message: 'Statut de isAccEnabled mis a jour.' });
+    res.status(200).json({ message: 'satut successfully updated' });
   } catch (error) {
-    console.error('Erreur sur la maj :', error);
-    res.status(500).json({ message: 'Erreur' });
+    res.status(500).send(error);
   }
 });
 

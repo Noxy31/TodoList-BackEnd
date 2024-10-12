@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import isAdminMiddleware from '../middlewares/isAdmin';
 import authMiddleware, { CustomRequest } from '../middlewares/authenticate';
 import enAccMiddleware from '../middlewares/isAccEnabled';
-import { Users } from '../models/Users';
 import { query } from '../db';
 
 const catRouter = Router();
@@ -13,8 +12,7 @@ catRouter.get('/', authMiddleware, enAccMiddleware, async (req: Request, res: Re
     const categories = await query(sql);
     res.status(200).json(categories);
   } catch (error) {
-    console.error('Erreur lors de la récupération des catégories :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des catégories' });
+    res.status(500).json({ message: 'server error' });
   }
 });
 
@@ -54,8 +52,7 @@ catRouter.get('/users-categories', authMiddleware, enAccMiddleware, async (req: 
 
     res.status(200).json(categories);
   } catch (error) {
-    console.error('Erreur lors de la récupération des catégories de l\'utilisateur :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des catégories de l\'utilisateur' });
+    res.status(500).send(error);
   }
 });
 
@@ -87,8 +84,7 @@ catRouter.get('/all-categories-lists', async (req: Request, res: Response) => {
 
     res.status(200).json(categories);
   } catch (error) {
-    console.error('Erreur lors de la récupération des catégories et listes :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des catégories et listes' });
+    res.status(500).send(error);
   }
 });
 
@@ -104,7 +100,7 @@ catRouter.post('/', isAdminMiddleware, authMiddleware, enAccMiddleware, async (r
     await query(sql, [name]);
     res.status(201).json({ message: 'Category successfully created' });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur lors de la création de la catégorie' });
+    res.status(500).send(error);
   }
 });
 

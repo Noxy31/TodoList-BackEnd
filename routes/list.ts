@@ -34,10 +34,9 @@ listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request,
       isPersonnal ? null : idCategory,
     ]);
 
-    res.status(201).json({ message: 'Liste créée avec succès', listId: result.insertId });
+    res.status(201).json({ message: 'list successfully created', listId: result.insertId });
   } catch (error) {
-    console.error('Erreur lors de la création de la liste :', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la création de la liste' });
+    res.status(500).send(error);
   }
 });
 
@@ -50,12 +49,12 @@ listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request,
     const lists = await query(sql, [userId]);
 
     if (lists.length === 0) {
-      return res.status(404).json({ message: 'No list found for this user' });
+      return res.status(404).json({ message: 'no list found for this user' });
     }
 
     res.status(200).json(lists);
   } catch (error) {
-    res.status(500).json({ message: 'Error fecthing the lists' });
+    res.status(500).send(error);
   }
 });
 
@@ -74,7 +73,7 @@ listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req:
     const results = await query(sql, [listId]);
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'List not found' });
+      return res.status(404).send('list not found');
     }
 
     const list = results[0];
@@ -86,8 +85,7 @@ listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req:
       creatorName: list.userName + ' ' + list.userSurname,
     });
   } catch (error) {
-    console.error('Error fetching list details :', error);
-    res.status(500).json({ message: 'Failed to fetch list details' });
+    res.status(500).send(error);
   }
 });
 
