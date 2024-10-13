@@ -65,18 +65,16 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
 
 taskRouter.put("/edit/:idTask", async (req: Request, res: Response) => {
   const idTask = parseInt(req.params.idTask, 10);
-  const { labelTask, dueTask } = req.body; // Récupérer uniquement les champs nécessaires
+  const { labelTask, dueTask } = req.body;
   const idUser = (req as any).user?.id;
 
   if (!idUser) {
     return res.status(401).send("User not authenticated");
   }
 
-  // Construire la requête de mise à jour en fonction des champs définis
   const updates: string[] = [];
   const params: any[] = [];
 
-  // Ajout des champs à mettre à jour
   if (labelTask !== undefined) {
     updates.push("labelTask = ?");
     params.push(labelTask);
@@ -87,16 +85,13 @@ taskRouter.put("/edit/:idTask", async (req: Request, res: Response) => {
     params.push(dueTask);
   }
 
-  // Si aucun champ n'est défini, retourner une erreur
   if (updates.length === 0) {
     return res.status(400).send("No fields to update");
   }
 
-  // Ajout de l'ID de la tâche à la fin des paramètres
   params.push(idTask);
 
   try {
-    // Construire la requête dynamique
     const updateQuery = `UPDATE task SET ${updates.join(", ")} WHERE idTask = ?`;
     const updateTaskResult = await query(updateQuery, params);
 

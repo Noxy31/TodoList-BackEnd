@@ -40,6 +40,20 @@ listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request,
   }
 });
 
+listRouter.put('/update-time/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  const listId = req.params.idList;
+  const listUpdateTime = new Date();
+
+  try {
+    const sql = `UPDATE list SET listUpdateTime = ? WHERE idList = ?`;
+    await query(sql, [listUpdateTime, listId]);
+
+    res.status(200).send({ message: '' });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 
 listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const userId = req.params.userId;
@@ -65,7 +79,7 @@ listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req:
   
   try {
     const sql = `
-      SELECT l.labelList, l.isPersonnal, l.listCreationTime, u.userName, u.userSurname
+      SELECT l.labelList, l.isPersonnal, l.listCreationTime, l.isArchived, u.userName, u.userSurname
       FROM list l 
       JOIN users u ON l.idUser = u.idUser 
       WHERE l.idList = ?`;
@@ -82,9 +96,55 @@ listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req:
       labelList: list.labelList,
       isPersonnal: list.isPersonnal,
       listCreationTime: list.listCreationTime,
+      isArchived: list.isArchived,
       creatorName: list.userName + ' ' + list.userSurname,
     });
   } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+listRouter.put('/archive/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  const listId = req.params.idList;
+  const userId = (req as any).user.id;
+  const archiveTime = new Date();
+
+  try {
+    const checkSql = `SELECT * FROM list WHERE idList = ?`;
+    const checkResult = await query(checkSql, [listId]);
+
+    if (checkResult.length === 0) {
+      return res.status(404).json({ message: 'List not found' });
+    }
+
+    const sql = `
+      UPDATE list
+      SET isArchived = 1, archiveTime = ?, idArchiver = ?
+      WHERE idList = ?
+    `;
+    await query(sql, [archiveTime, userId, listId]);
+
+    res.status(200).send('');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+});
+
+listRouter.put('/unarchive/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  const listId = req.params.idList;
+
+  try {
+    const sql = `
+      UPDATE list
+      SET isArchived = 0, archiveTime = NULL, idArchiver = NULL, listUpdateTime = NOW()
+      WHERE idList = ?
+    `;
+    await query(sql, [listId]);
+
+    res.status(200).send('');
+  } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });
