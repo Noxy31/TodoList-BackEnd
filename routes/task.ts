@@ -4,6 +4,7 @@ import { query } from '../db';
 
 const taskRouter = Router();
 
+//get all tasks
 taskRouter.get("/", async (req: Request, res: Response) => {
   try {
     const tasks = await query('SELECT * FROM task');
@@ -13,6 +14,7 @@ taskRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+//get all tasks from a list
 taskRouter.get("/list/:idList", async (req: Request, res: Response) => {
   const idList = parseInt(req.params.idList, 10);
 
@@ -24,7 +26,7 @@ taskRouter.get("/list/:idList", async (req: Request, res: Response) => {
   }
 });
 
-
+//update of state of a task (done or not) and add timestamp of modified a task, also add the iduser and id task and ts in updatetask
 taskRouter.put("/:idTask", async (req: Request, res: Response) => {
   const idTask = parseInt(req.params.idTask, 10);
   const { done } = req.body;
@@ -63,6 +65,7 @@ taskRouter.put("/:idTask", async (req: Request, res: Response) => {
   }
 });
 
+//update attributes of a task (could have been done with the one upon but i'm too lazy to do it now)
 taskRouter.put("/edit/:idTask", async (req: Request, res: Response) => {
   const idTask = parseInt(req.params.idTask, 10);
   const { labelTask, dueTask } = req.body;
@@ -115,6 +118,8 @@ taskRouter.put("/edit/:idTask", async (req: Request, res: Response) => {
   }
 });
 
+
+//delete of a task
 taskRouter.delete("/:id", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
 
@@ -126,6 +131,7 @@ taskRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
+//create a task
 taskRouter.post("/", async (req: Request, res: Response) => {
   const { labelTask, idList, idUser, dueTask } = req.body;
 
@@ -144,6 +150,7 @@ taskRouter.post("/", async (req: Request, res: Response) => {
   }
 });
 
+//fetch the details of a task per user
 taskRouter.get("/details/:idList", async (req: Request, res: Response) => {
   const idList = parseInt(req.params.idList, 10);
   

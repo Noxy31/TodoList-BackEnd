@@ -6,6 +6,8 @@ import { query } from '../db';
 
 const catRouter = Router();
 
+
+//get all categories
 catRouter.get('/', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   try {
     const sql = 'SELECT idCategory, labelCategory FROM category';
@@ -16,6 +18,7 @@ catRouter.get('/', authMiddleware, enAccMiddleware, async (req: Request, res: Re
   }
 });
 
+//get categories of a logged in user
 catRouter.get('/users-categories', authMiddleware, enAccMiddleware, async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -56,7 +59,9 @@ catRouter.get('/users-categories', authMiddleware, enAccMiddleware, async (req: 
   }
 });
 
-catRouter.get('/all-categories-lists', async (req: Request, res: Response) => {
+
+//get all categories for admins
+catRouter.get('/all-categories-lists', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   try {
     const sql = `
       SELECT c.idCategory, c.labelCategory, l.idList, l.labelList 

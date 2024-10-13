@@ -13,7 +13,7 @@ dotenv.config();
 const usersRouter = Router();
 usersRouter.use(cookieParser());
 
-
+//get the id of a logged in user
 usersRouter.get('/getUserId', authMiddleware, (req: CustomRequest, res: Response) => {
   console.log("Utilisateur connecté : ", req.user);
   if (req.user) {
@@ -23,6 +23,7 @@ usersRouter.get('/getUserId', authMiddleware, (req: CustomRequest, res: Response
   }
 });
 
+//get users and concat names attributes as a fullName
 usersRouter.get('/', async (req: Request, res: Response) => {
   try {
     const sql = 'SELECT idUser, CONCAT(userName, " ", userSurname) AS fullName, userMail, isAccEnabled FROM users';
@@ -33,6 +34,7 @@ usersRouter.get('/', async (req: Request, res: Response) => {
   }
 });
 
+//get all the info of a user that is logged in
 usersRouter.get('/info', authMiddleware, enAccMiddleware, async (req: CustomRequest, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: 'User not authentified' });
@@ -50,6 +52,7 @@ usersRouter.get('/info', authMiddleware, enAccMiddleware, async (req: CustomRequ
   }
 });
 
+//assign user to a category
 usersRouter.post('/assign-user', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { idUser, idCategory } = req.body;
   
@@ -62,6 +65,8 @@ usersRouter.post('/assign-user', isAdminMiddleware, authMiddleware, enAccMiddlew
   }
 });
 
+
+//same but unassign
 usersRouter.delete('/unassign-user', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { idUser, idCategory } = req.body;
 
@@ -78,6 +83,8 @@ usersRouter.delete('/unassign-user', isAdminMiddleware, authMiddleware, enAccMid
   }
 });
 
+
+//create a user
 usersRouter.post('/create-user', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { userName, userSurname, userMail, hashedPass, isAdmin, isAccEnabled } = req.body;
 
@@ -93,6 +100,8 @@ usersRouter.post('/create-user', isAdminMiddleware, authMiddleware, enAccMiddlew
   }
 });
 
+
+//enable or disable an account
 usersRouter.put('/:id/enable-disable', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { id } = req.params;
   const { isAccEnabled } = req.body;

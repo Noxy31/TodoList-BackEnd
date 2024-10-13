@@ -6,6 +6,7 @@ import enAccMiddleware from '../middlewares/isAccEnabled';
 
 const listRouter = Router();
 
+//list creation
 listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { labelList, isPersonnal, idCategory } = req.body;
   const userId = (req as any).user.id;
@@ -40,6 +41,7 @@ listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request,
   }
 });
 
+//update time on list modification
 listRouter.put('/update-time/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const listId = req.params.idList;
   const listUpdateTime = new Date();
@@ -55,6 +57,7 @@ listRouter.put('/update-time/:idList', authMiddleware, enAccMiddleware, async (r
 });
 
 
+//get list that belongs to a user
 listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const userId = req.params.userId;
 
@@ -72,6 +75,7 @@ listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request,
   }
 });
 
+//get list details with tasks
 listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   console.log('Received request for list ID:', req.params.idList);
 
@@ -104,6 +108,8 @@ listRouter.get('/tasklist/:idList', authMiddleware, enAccMiddleware, async (req:
   }
 });
 
+
+//archive a list
 listRouter.put('/archive/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const listId = req.params.idList;
   const userId = (req as any).user.id;
@@ -119,10 +125,16 @@ listRouter.put('/archive/:idList', authMiddleware, enAccMiddleware, async (req: 
 
     const sql = `
       UPDATE list
-      SET isArchived = 1, archiveTime = ?, idArchiver = ?
+      SET isArchived = 1, archiveTime = ?, idArchiver = ?, listUpdateTime = NOW()
       WHERE idList = ?
     `;
     await query(sql, [archiveTime, userId, listId]);
+
+    const updateListSql = `
+      INSERT INTO updatelist (idUser, idList, listUpdateTime)
+      VALUES (?, ?, NOW())
+    `;
+    await query(updateListSql, [userId, listId]);
 
     res.status(200).send('');
   } catch (error) {
@@ -131,8 +143,11 @@ listRouter.put('/archive/:idList', authMiddleware, enAccMiddleware, async (req: 
   }
 });
 
+
+//unarchive a list
 listRouter.put('/unarchive/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const listId = req.params.idList;
+  const userId = (req as any).user.id;
 
   try {
     const sql = `
@@ -141,6 +156,12 @@ listRouter.put('/unarchive/:idList', authMiddleware, enAccMiddleware, async (req
       WHERE idList = ?
     `;
     await query(sql, [listId]);
+
+    const updateListSql = `
+      INSERT INTO updatelist (idUser, idList, listUpdateTime)
+      VALUES (?, ?, NOW())
+    `;
+    await query(updateListSql, [userId, listId]);
 
     res.status(200).send('');
   } catch (error) {
