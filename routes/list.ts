@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { query } from '../db';
-import { Users } from '../models/Users';
 import authMiddleware from '../middlewares/authenticate';
 import enAccMiddleware from '../middlewares/isAccEnabled';
 
@@ -41,6 +40,22 @@ listRouter.post('/create', authMiddleware, enAccMiddleware, async (req: Request,
   }
 });
 
+//get all archived lists
+listRouter.get('/archived', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
+  try {
+    const sql = `SELECT * FROM list WHERE isArchived = 1`;
+    const lists = await query(sql);
+
+    if (lists.length === 0) {
+      return res.status(404).json({ message: 'no archived lists found' });
+    }
+
+    res.status(200).json(lists);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 //update time on list modification
 listRouter.put('/update-time/:idList', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const listId = req.params.idList;
@@ -57,7 +72,7 @@ listRouter.put('/update-time/:idList', authMiddleware, enAccMiddleware, async (r
 });
 
 
-//get list that belongs to a user
+// get list that belongs to a user
 listRouter.get('/:userId', authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const userId = req.params.userId;
 
