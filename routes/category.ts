@@ -93,11 +93,12 @@ catRouter.get('/all-categories-lists', authMiddleware, enAccMiddleware, async (r
   }
 });
 
+
 catRouter.post('/', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { name } = req.body;
 
   if (!name) {
-    return res.status(400).json({ message: 'Le nom de la catégorie est requis' });
+    return res.status(400).json({ message: 'Category name required' });
   }
 
   try {
