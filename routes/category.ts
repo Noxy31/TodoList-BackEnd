@@ -93,7 +93,7 @@ catRouter.get('/all-categories-lists', authMiddleware, enAccMiddleware, async (r
   }
 });
 
-
+//category creation
 catRouter.post('/', isAdminMiddleware, authMiddleware, enAccMiddleware, async (req: Request, res: Response) => {
   const { name } = req.body;
 
